@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xq.read.mapper.ArticleMapper">
+
+    <select id="selectListPage" resultType="com.xq.read.pojo.Article">
+        select *
+        from article
+        limit #{index},#{size}
+    </select>
+
+    <select id="selectListPageOrderByLike" resultType="com.xq.read.pojo.Article">
+        select *
+        from article
+        order by likes desc
+        limit #{index},#{size}
+    </select>
+
+    <select id="selectListPageByUserId" resultType="com.xq.read.pojo.Article">
+        select *
+        from article
+            where userId = #{userId}
+        limit #{index},#{size}
+    </select>
+
+    <select id="selectListPageByKeyword" resultType="com.xq.read.pojo.Article">
+        select *
+        from article
+        where topic like #{keyword}
+        limit #{index},#{size}
+    </select>
+
+    <update id="updateByColumn" >
+        update article
+        set ${column} = ${column} + 1
+        where id = #{userId}
+    </update>
+
+</mapper>
