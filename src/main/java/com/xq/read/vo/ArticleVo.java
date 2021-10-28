@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.catalina.LifecycleState;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class ArticleVo {
+public class ArticleVo implements Serializable {
 
 
     /**

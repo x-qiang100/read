@@ -33,41 +33,57 @@ public class MyRealm extends AuthorizingRealm {
     private static final Logger logger = LoggerFactory.getLogger(MyRealm.class);
 
 
-    //授权
+    /**
+     * 授权
+     *
+     * @param principalCollection
+     * @return
+     */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         logger.info("权限配置");
         int id = (Integer) principalCollection.getPrimaryPrincipal();
+        //权限信息
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-        Set<String> set = new LinkedHashSet();
-        set.add("user");
         //添加角色
-        authorizationInfo.setRoles(set );
+        Set<String> roles = new LinkedHashSet<>();
+        roles.add("user");
+        authorizationInfo.setRoles(roles );
         //添加权限
-        authorizationInfo.setStringPermissions(set);
+        Set<String> permission = new LinkedHashSet<>();
+        permission.add("general");
+        authorizationInfo.setStringPermissions(permission);
         return authorizationInfo;
     }
 
-    //验证
+    /**
+     * 验证
+     *
+     * @param authenticationToken
+     * @return
+     * @throws AuthenticationException
+     */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(
             AuthenticationToken authenticationToken) throws AuthenticationException {
 
-        String  username = (String) authenticationToken.getPrincipal();
-
-        logger.info(username);
-        logger.info("开始进行登录验证");
-
-        String password = new String( (char[]) authenticationToken.getCredentials() );
-
-        User user = userService.getByAccount(username);
-        if(user == null){
-            throw new AuthenticationException("没有此用户");
+        if(authenticationToken.getPrincipal() == null){
+            return null;
         }
+        String  name = (String) authenticationToken.getPrincipal();
+
+        logger.info(name+"开始身份验证");
+        String password = new String( (char[]) authenticationToken.getCredentials() );
+        System.out.println("authenticationToken.getPrincipal() = " + authenticationToken.getPrincipal());
+        System.out.println("authenticationToken.getCredentials() = " + authenticationToken.getCredentials());
+        System.out.println("password = " + password);
+
+        User user = userService.getByAccount(name);
+        System.out.println("user.getPwd() = " + user.getPwd());
         if(password.equals(user.getPwd())){
             //把当前用户存到session中
-            SecurityUtils.getSubject().getSession().setAttribute("user",user);
-
+            SecurityUtils.getSubject().getSession().setAttribute("id",user.getId());
+            SecurityUtils.getSubject().getSession().setAttribute("name",name);
             //传入用户名和密码，返回认证信息
             AuthenticationInfo info = new SimpleAuthenticationInfo(user, user.getPwd(),"MyRealm");
             logger.info("通过验证");

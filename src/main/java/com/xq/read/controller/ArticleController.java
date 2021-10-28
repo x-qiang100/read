@@ -6,6 +6,7 @@ import com.xq.read.pojo.Article;
 import com.xq.read.service.IArticleService;
 import com.xq.read.service.IDict_tagService;
 import com.xq.read.vo.ArticleVo;
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,10 @@ public class ArticleController {
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     public ServerResponse<ArticleVo> getArticle(Integer article){
         //若是游客登陆，则-1
-        Integer userId = 1;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");
+        if(userId == null){
+            userId = -1;
+        }
         try{
             ServerResponse<ArticleVo> articleVoById = iArticleService.getArticleVoById(article, userId);
             logger.info("获取文章"+articleVoById.getData().getId());
@@ -65,7 +69,7 @@ public class ArticleController {
     public ServerResponse addArticle(@RequestBody ArticleVo articleVo)
     {
         //通过token或cookie获取
-        Integer userId = 4;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
 
         Article article = new Article();
         article.setUserId(userId);
@@ -97,7 +101,7 @@ public class ArticleController {
     public ServerResponse delete(@RequestBody Article article)
     {
         //从cookie获取
-        Integer userId = 3;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
         Integer articleId = article.getId();
         try{
             Boolean b = iArticleService.deleteArticle(userId, articleId);
@@ -108,6 +112,5 @@ public class ArticleController {
         }
         return ServerResponse.createByErrorMessage("error");
     }
-
 }
 

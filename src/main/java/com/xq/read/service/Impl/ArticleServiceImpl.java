@@ -2,6 +2,7 @@ package com.xq.read.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xq.read.common.ServerResponse;
+import com.xq.read.controller.ArticleController;
 import com.xq.read.mapper.CommentMapper;
 import com.xq.read.mapper.TagMapper;
 import com.xq.read.mapper.UserMapper;
@@ -9,14 +10,19 @@ import com.xq.read.pojo.*;
 import com.xq.read.mapper.ArticleMapper;
 import com.xq.read.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xq.read.utils.RedisUtil;
 import com.xq.read.vo.ArticleVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -54,8 +60,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Autowired(required = false)
     TagMapper tagMapper;
 
+    @Autowired
+    RedisUtil redisUtil;
+
     @Override
     public ServerResponse<ArticleVo> getArticleVoById(Integer id, Integer userId) {
+        //取出缓存
+        ArticleVo cacheArticle = null;
+        final Object o = redisUtil.get("article"+id.toString());
+        if(o != null){
+            return ServerResponse.createBySuccess( (ArticleVo) cacheArticle);
+        }
+
         Article article = getArticleById(id);
         if(article == null){
             return ServerResponse.createByErrorMessage("没有此文章");
@@ -74,6 +90,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             record.setArticleId(id);
             record.setUserId(userId);
             iRecordService.insertRecord(record);
+        }
+
+        //放入缓存
+        if(articleVo.getViews() > 1000){
+            redisUtil.set("article"+articleVo.getId(), articleVo);
         }
 
         return ServerResponse.createBySuccess(articleVo);

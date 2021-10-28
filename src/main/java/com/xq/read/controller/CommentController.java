@@ -5,6 +5,7 @@ import com.xq.read.common.ServerResponse;
 import com.xq.read.pojo.Article;
 import com.xq.read.pojo.Comment;
 import com.xq.read.service.ICommentService;
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +36,7 @@ public class CommentController {
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ServerResponse addComment(@RequestBody Comment comment){
 
-        //userId修改
-        comment.setUserId(4);
-//        comment.setCommentId(commentId);
-//        comment.setArticleId(articleId);
-//        comment.setUserId(userId);
-//        comment.setContent(content);
-
+        comment.setUserId((Integer) SecurityUtils.getSubject().getSession().getAttribute("id"));
         try{
             Boolean b = iCommentService.insertComment(comment);
             if(b) return ServerResponse.createBySuccessMessage("添加成功");
@@ -55,7 +50,7 @@ public class CommentController {
     public ServerResponse delete(@RequestBody Comment comment)
     {
         //从cookie获取
-        Integer userId = 3;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
 
         Integer commentId = comment.getId();
         try{

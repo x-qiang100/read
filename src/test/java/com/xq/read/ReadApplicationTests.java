@@ -12,11 +12,13 @@ import com.xq.read.pojo.User;
 import com.xq.read.service.IArticleService;
 import com.xq.read.service.IPreviewService;
 import com.xq.read.service.IUserService;
+import com.xq.read.utils.RedisUtil;
 import com.xq.read.vo.ArticleVo;
 import com.xq.read.vo.PreviewVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
 
@@ -55,7 +57,7 @@ class ReadApplicationTests {
         System.out.println("comment = " + comment);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     }
 
-    @Autowired
+    @Autowired(required = false)
     UserMapper userMapper;
 
     @Test
@@ -134,5 +136,20 @@ class ReadApplicationTests {
         System.out.println("integer = " + b);
     }
 
+    @Autowired
+    RedisUtil redisUtil;
+    @Test
+    void testRedis() {
+        ArticleVo articleVo = new ArticleVo();
+        articleVo.setId(1);
+        articleVo.setContent("haha");
+        redisUtil.set("1",articleVo);
+        System.out.println("redisUtil.get(\"1\").toString() = " + redisUtil.get("1").toString());
+        final Object asgagdjas = redisUtil.get("asgagdjas");
+        System.out.println("asgagdjas = " + asgagdjas);
+        if(asgagdjas == null){
+            System.out.println("null");
+        }
+    }
 
 }

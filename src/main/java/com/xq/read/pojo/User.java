@@ -63,7 +63,7 @@ public class User implements Serializable {
       /**
      * 手机号
      */
-      private Integer phone;
+      private String phone;
 
       /**
      * 密码

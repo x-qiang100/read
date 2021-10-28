@@ -6,6 +6,7 @@ import com.xq.read.Config.ShiroConfig;
 import com.xq.read.common.ServerResponse;
 import com.xq.read.pojo.User;
 import com.xq.read.service.IUserService;
+import com.xq.read.vo.TempUser;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Controller;
 
+import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +44,7 @@ public class UserController {
     IUserService iUserService;
 
     @RequestMapping(value = "/register",method = RequestMethod.POST)
-    public ServerResponse register(@RequestBody User user){
+    public ServerResponse register(@RequestBody TempUser user){
         String name = user.getName();
         String pwd = user.getPwd();
         if(name == null || pwd == null){
@@ -60,10 +62,13 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public ServerResponse login(@RequestBody User user,
+    public ServerResponse login(@RequestBody TempUser user,
                                 HttpServletRequest request,
                                 HttpServletResponse response){
 
+        System.out.println("user = " + user);
+        System.out.println("user.getName() = " + user.getName());
+        System.out.println("user.getPwd() = " + user.getPwd());
         String  name = user.getName();
         String  password = user.getPwd();
         if(name == null || password == null){
@@ -76,10 +81,10 @@ public class UserController {
         Subject subject = SecurityUtils.getSubject();
         String  errorMessage = "error";
         try {
-//            UsernamePasswordToken token = new UsernamePasswordToken( name, password);
-//            subject.login(token );
-//            return ServerResponse.createBySuccess(subject.getPrincipal());
-        return iUserService.login(name,password);
+            UsernamePasswordToken token = new UsernamePasswordToken( name, password);
+            subject.login(token );
+            return ServerResponse.createBySuccess(subject.getPrincipal());
+//            return ServerResponse.createBySuccess( iUserService.getByAccount(name));
         }catch (Exception e){
             e.printStackTrace();
             errorMessage = e.getMessage();
@@ -97,7 +102,7 @@ public class UserController {
     @RequestMapping(value="/modify", method = RequestMethod.POST)
     public ServerResponse modify(@RequestBody User user){
 
-        Integer userId = 1;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");
         String  intro = user.getIntro();
         String address = user.getAddress();
         String gender = user.getGender();
@@ -122,8 +127,11 @@ public class UserController {
 
 
     @RequestMapping(value = "/hello",method = RequestMethod.GET)
-    public String hello(){
+    public String hello(HttpServletRequest request){
+        System.out.println("hello");
+        final Object id = SecurityUtils.getSubject().getSession().getAttribute("id");
         logger.info("hello world");
+        logger.info(id+"hello");
         return "<h1>hello, world</h1>";
     }
 
@@ -141,6 +149,5 @@ public class UserController {
         logger.info("错误");
         return "<h1>ERROR</h1>";
     }
-
 }
 

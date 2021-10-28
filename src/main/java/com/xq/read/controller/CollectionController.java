@@ -7,6 +7,7 @@ import com.xq.read.pojo.Collection;
 import com.xq.read.service.IArticleService;
 import com.xq.read.service.ICollectionService;
 import com.xq.read.service.IPreviewService;
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class CollectionController {
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     public ServerResponse getCollection( @RequestParam(required = false, defaultValue = "1")Integer page) {
         //修改
-        Integer userId = 1;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
 
         try{
             return iPreviewService.getCollectArticles(userId, page);
@@ -64,7 +65,7 @@ public class CollectionController {
         if(article.getId() == null){
             return ServerResponse.createByErrorMessage("error");
         }
-        Integer userId = 4;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
         Collection collection = new Collection();
         collection.setUserId(userId);
         collection.setArticleId(article.getId() );
@@ -81,7 +82,7 @@ public class CollectionController {
     public ServerResponse delete(@RequestBody Collection collection)
     {
         //从cookie获取
-        Integer userId = 3;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
         collection.setUserId(userId );
 
         try{

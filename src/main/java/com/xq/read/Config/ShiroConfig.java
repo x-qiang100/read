@@ -50,7 +50,7 @@ public class ShiroConfig {
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager securityManager){
-        logger.info("shiro filter");
+        logger.info("Shiro filter");
         //定义
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         //设置自定义的securityManger

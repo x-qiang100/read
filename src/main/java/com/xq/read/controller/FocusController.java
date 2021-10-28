@@ -5,6 +5,7 @@ import com.xq.read.common.ServerResponse;
 import com.xq.read.pojo.Article;
 import com.xq.read.pojo.Focus;
 import com.xq.read.service.IFocusService;
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class FocusController {
     @RequestMapping(value = "/addFocus", method = RequestMethod.POST)
     public ServerResponse addFocus(@RequestBody Focus focus){
         //
-        Integer userId = 1;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
 
         Integer follower = userId;
         Integer followed = focus.getFollowed();
@@ -63,7 +64,7 @@ public class FocusController {
     @RequestMapping(value = "/getFans", method = RequestMethod.GET)
     public ServerResponse getFans(){
         //
-        Integer userId = 1;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
         try{
             return iFocusService.getFansByUserId(userId);
         }catch (Exception e){
@@ -78,7 +79,7 @@ public class FocusController {
      */
     @RequestMapping(value = "/getFocus", method = RequestMethod.GET)
     public ServerResponse getFocus(){
-        Integer userId = 2;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
         try{
             return iFocusService.getFocusByUserId(userId);
         }catch (Exception e){
@@ -86,11 +87,17 @@ public class FocusController {
         }
         return ServerResponse.createByErrorMessage("error");
     }
+
+    /**
+     *
+     * @param focus
+     * @return
+     */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ServerResponse delete(@RequestBody Focus focus)
     {
         //从cookie获取
-        Integer userId = 3;
+        Integer userId = (Integer) SecurityUtils.getSubject().getSession().getAttribute("id");;
         focus.setFollower(userId);
 
         try{
